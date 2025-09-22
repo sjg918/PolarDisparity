@@ -1,3 +1,36 @@
+# refer : https://github.com/YJLCV/Guard-Net
+class BasicConv(nn.Module):
+
+    def __init__(self, in_channels, out_channels, deconv=False, is_3d=False, bn=True, relu=True, **kwargs):
+        super(BasicConv, self).__init__()
+
+        self.relu = relu
+        self.use_bn = bn
+        if is_3d:
+            if deconv:
+                self.conv = nn.ConvTranspose3d(in_channels, out_channels, bias=False, **kwargs)
+            else:
+                self.conv = nn.Conv3d(in_channels, out_channels, bias=False, **kwargs)
+            if bn:
+                self.bn = nn.BatchNorm3d(out_channels)
+        else:
+            if deconv:
+                self.conv = nn.ConvTranspose2d(in_channels, out_channels, bias=False, **kwargs)
+            else:
+                self.conv = nn.Conv2d(in_channels, out_channels, bias=False, **kwargs)
+            if bn:
+                self.bn = nn.BatchNorm2d(out_channels)
+        if relu:
+            self.act = nn.LeakyReLU(0.1, inplace=True)
+
+    def forward(self, x):
+        x = self.conv(x)
+        if self.use_bn:
+            x = self.bn(x)
+        if self.relu:
+            x = self.act(x)
+        return x
+
 # refer : cgi-stereo
 class hourglass(nn.Module):
     def __init__(self, in_channels):
